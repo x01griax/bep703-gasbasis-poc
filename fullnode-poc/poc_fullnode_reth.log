@@ -1,0 +1,103 @@
+===============================================================================
+BNB-BEP703-GASBASIS-DIVERGENCE-001 - FULL-NODE POC LOGS (reth-bsc / Rust)
+Captured from GitHub Actions run 37862123741 (conclusion: success) on
+ubuntu-latest, 2026-10-09. reth-bsc binary built at the pinned commit
+95884fd520b1e4c59b7837c11f05311242360304 (dev profile, opt-level 1, jobs=2).
+The stock "reth-bsc import" command cannot execute BSC chains at this commit
+(its component wiring never registers the node-path global header/snapshot
+providers - see part [3/3]); the verdicts below run the IDENTICAL import
+pipeline (reth_cli_commands::import_core::import_blocks_from_file) via the
+added import_harness binary with the node's own provider registration.
+Verdict assertions asserted in-workflow (grep) and passing:
+  no-BAL chain : "Import complete. Total: 2/2 blocks, 66/66 transactions"
+  BAL chain    : "invalid BlockAccessListHash"
+===============================================================================
+
+-------------------------------------------------------------------------------
+[1/2] import chain_no_bal.rlp --chain genesis.json   (THE SAME SERIALIZED RLP
+      CHAIN bsc REJECTS ABOVE)
+      EXPECTED: ACCEPT - both blocks import, head advances to block 2.
+-------------------------------------------------------------------------------
+[harness] pre-flight genesis lookup: hash=0x6b3282af7fd2ecffefdbe366a8a7193f89ed7c80fef4bb78f078bf34db29cc5c resolved=true
+[harness] genesis header seeded into the global header cache
+[harness] snapshot db initialized at "rd-nobal/parlia_snapshots"
+[harness] global snapshot provider registered
+[harness] importing file 1 of 1: chain_no_bal.rlp
+[harness] import result: blocks 2/2 txns 66/66 stopped_on_invalid=false bad_block=None last_valid=None
+Import complete. Total: 2/2 blocks, 66/66 transactions
+
+-------------------------------------------------------------------------------
+[2/2] import chain_with_bal.rlp --chain genesis.json  (block 2 carries the
+      Amsterdam trailing header fields)
+      EXPECTED: REJECT - PR #499 pre-activation rejection of the fields' presence.
+-------------------------------------------------------------------------------
+[harness] pre-flight genesis lookup: hash=0x6b3282af7fd2ecffefdbe366a8a7193f89ed7c80fef4bb78f078bf34db29cc5c resolved=true
+[harness] genesis header seeded into the global header cache
+[harness] snapshot db initialized at "rd-withbal/parlia_snapshots"
+[harness] global snapshot provider registered
+[harness] importing file 1 of 1: chain_with_bal.rlp
+[harness] import_blocks_from_file returned error: invalid BlockAccessListHash, have 0x8767d1d223319c0bbff011b8fe5f786a8559bf986ecda965f9681535e0cf4eb1, expected nil
+Error: invalid BlockAccessListHash, have 0x8767d1d223319c0bbff011b8fe5f786a8559bf986ecda965f9681535e0cf4eb1, expected nil
+
+Location:
+    /home/runner/.cargo/git/checkouts/reth-8428740b6850f139/42d537b/crates/cli/commands/src/import_core.rs:135:9
+
+-------------------------------------------------------------------------------
+[3/3] DOCUMENTED TOOLING GAP (not a consensus verdict): the stock reth-bsc
+      import command aborts any BSC chain at the Execution stage because the
+      import component wiring (src/main.rs closure) never registers the global
+      header provider that BscConsensusBuilder::build_consensus sets on the node
+      path. Captured for the vendor as a separate fixable gap.
+-------------------------------------------------------------------------------
+[2m2026-10-09T00:34:48.511511Z[0m [32m INFO[0m Initialized tracing, debug log directory: /home/runner/.cache/reth/logs/714
+[2m2026-10-09T00:34:48.513226Z[0m [32m INFO[0m reth 95884fd (95884fd) starting
+[2m2026-10-09T00:34:48.513525Z[0m [32m INFO[0m Opening storage [3mdb_path[0m[2m=[0m"rd-stock/db" [3msf_path[0m[2m=[0m"rd-stock/static_files"
+[2m2026-10-09T00:34:48.524094Z[0m [33m WARN[0m RocksDB will not keep all files open; performance may be reduced [3mfile_descriptor_limit[0m[2m=[0mSome(65536) [3mthreshold[0m[2m=[0m131072 [3mmax_open_files[0m[2m=[0m512
+[2m2026-10-09T00:34:48.553065Z[0m [32m INFO[0m [1mcheck_consistency[0m[1m{[0m[3mread_only[0m[2m=[0mfalse[1m}[0m[2m:[0m Verifying storage consistency.
+[2m2026-10-09T00:34:48.558387Z[0m [32m INFO[0m genesis header state root: 0xbc9368bae2fdefe624c54dd9b91f342144032214ddbc55f102a5b2d23af80bad
+[2m2026-10-09T00:34:48.574771Z[0m [32m INFO[0m Starting import of 1 file(s)
+[2m2026-10-09T00:34:48.575074Z[0m [32m INFO[0m Importing file 1 of 1: chain_no_bal.rlp
+[2m2026-10-09T00:34:48.575089Z[0m [32m INFO[0m Consensus engine initialized
+[2m2026-10-09T00:34:48.576968Z[0m [32m INFO[0m Importing chain file chunk
+[2m2026-10-09T00:34:48.576991Z[0m [32m INFO[0m Chain file chunk read
+[2m2026-10-09T00:34:48.577404Z[0m [32m INFO[0m Starting sync pipeline
+[2m2026-10-09T00:34:48.578800Z[0m [32m INFO[0m Downloading bodies [3mcount[0m[2m=[0m2 [3mrange[0m[2m=[0m1..=2
+[2m2026-10-09T00:34:48.578845Z[0m [32m INFO[0m Received headers [3mtotal[0m[2m=[0m2 [3mfrom_block[0m[2m=[0m2 [3mto_block[0m[2m=[0m1
+[2m2026-10-09T00:34:48.578854Z[0m [32m INFO[0m Preparing stage [3mpipeline_stages[0m[2m=[0m1/13 [3mstage[0m[2m=[0mHeaders [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.578924Z[0m [32m INFO[0m Writing headers [3mtotal[0m[2m=[0m2
+[2m2026-10-09T00:34:48.579166Z[0m [32m INFO[0m Writing headers hash index [3mtotal[0m[2m=[0m2
+[2m2026-10-09T00:34:48.579212Z[0m [32m INFO[0m Executing stage [3mpipeline_stages[0m[2m=[0m1/13 [3mstage[0m[2m=[0mHeaders [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.584098Z[0m [32m INFO[0m Finished stage [3mpipeline_stages[0m[2m=[0m1/13 [3mstage[0m[2m=[0mHeaders [3mcheckpoint[0m[2m=[0m2 [3mtarget[0m[2m=[0m2 [3mstage_progress[0m[2m=[0m100.00%
+[2m2026-10-09T00:34:48.585207Z[0m [32m INFO[0m Preparing stage [3mpipeline_stages[0m[2m=[0m2/13 [3mstage[0m[2m=[0mBodies [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.585519Z[0m [32m INFO[0m Executing stage [3mpipeline_stages[0m[2m=[0m2/13 [3mstage[0m[2m=[0mBodies [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.589892Z[0m [32m INFO[0m Finished stage [3mpipeline_stages[0m[2m=[0m2/13 [3mstage[0m[2m=[0mBodies [3mcheckpoint[0m[2m=[0m2 [3mtarget[0m[2m=[0m2 [3mstage_progress[0m[2m=[0m100.00%
+[2m2026-10-09T00:34:48.589956Z[0m [32m INFO[0m Preparing stage [3mpipeline_stages[0m[2m=[0m3/13 [3mstage[0m[2m=[0mSenderRecovery [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.589985Z[0m [32m INFO[0m Executing stage [3mpipeline_stages[0m[2m=[0m3/13 [3mstage[0m[2m=[0mSenderRecovery [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.589988Z[0m [32m INFO[0m Recovering senders [3mtx_range[0m[2m=[0m0..66
+[2m2026-10-09T00:34:48.599537Z[0m [32m INFO[0m Finished stage [3mpipeline_stages[0m[2m=[0m3/13 [3mstage[0m[2m=[0mSenderRecovery [3mcheckpoint[0m[2m=[0m2 [3mtarget[0m[2m=[0m2 [3mstage_progress[0m[2m=[0m0.00%
+[2m2026-10-09T00:34:48.599614Z[0m [32m INFO[0m Preparing stage [3mpipeline_stages[0m[2m=[0m4/13 [3mstage[0m[2m=[0mExecution [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.599738Z[0m [32m INFO[0m Executing stage [3mpipeline_stages[0m[2m=[0m4/13 [3mstage[0m[2m=[0mExecution [3mcheckpoint[0m[2m=[0m0 [3mtarget[0m[2m=[0m2
+[2m2026-10-09T00:34:48.602474Z[0m [31mERROR[0m Stage encountered an execution error: Failed to get parent header from global header reader [3mstage[0m[2m=[0mExecution [3mbad_block[0m[2m=[0m1
+[2m2026-10-09T00:34:48.602611Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mFinish[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602631Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mPrune[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602640Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mIndexAccountHistory[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602648Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mIndexStorageHistory[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602685Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mTransactionLookup[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602696Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mMerkleExecute[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602704Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mStorageHashing[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602711Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mAccountHashing[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602718Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mMerkleUnwind[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602725Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mExecution[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m0 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602741Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mSenderRecovery[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m2 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.602754Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mSenderRecovery[1m}[0m[2m:[0m Stage unwound [3mstage[0m[2m=[0mSenderRecovery [3munwind_to[0m[2m=[0m0 [3mprogress[0m[2m=[0m0 [3mdone[0m[2m=[0mtrue
+[2m2026-10-09T00:34:48.602999Z[0m [32m INFO[0m Unwound stage [3mstage[0m[2m=[0mSenderRecovery [3mcheckpoint[0m[2m=[0m0
+[2m2026-10-09T00:34:48.610216Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mBodies[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m2 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.610283Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mBodies[1m}[0m[2m:[0m Stage unwound [3mstage[0m[2m=[0mBodies [3munwind_to[0m[2m=[0m0 [3mprogress[0m[2m=[0m0 [3mdone[0m[2m=[0mtrue
+[2m2026-10-09T00:34:48.610588Z[0m [32m INFO[0m Unwound stage [3mstage[0m[2m=[0mBodies [3mcheckpoint[0m[2m=[0m0
+[2m2026-10-09T00:34:48.621087Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mHeaders[1m}[0m[2m:[0m Starting unwind [3mfrom[0m[2m=[0m2 [3mto[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1)
+[2m2026-10-09T00:34:48.621159Z[0m [32m INFO[0m [1mUnwinding[0m[1m{[0m[3mstage[0m[2m=[0mHeaders[1m}[0m[2m:[0m Stage unwound [3mstage[0m[2m=[0mHeaders [3munwind_to[0m[2m=[0m0 [3mprogress[0m[2m=[0m0 [3mdone[0m[2m=[0mtrue
+[2m2026-10-09T00:34:48.621221Z[0m [32m INFO[0m Unwound stage [3mstage[0m[2m=[0mHeaders [3mcheckpoint[0m[2m=[0m0
+[2m2026-10-09T00:34:48.633950Z[0m [33m WARN[0m Invalid block encountered during import; stopping at last valid block [3mbad_block[0m[2m=[0m1 [3mlast_valid_block[0m[2m=[0m0
+[2m2026-10-09T00:34:48.634066Z[0m [32m INFO[0m Import stopped at last valid block due to invalid block [3mtotal_imported_blocks[0m[2m=[0m0 [3mtotal_imported_txns[0m[2m=[0m0 [3mbad_block[0m[2m=[0mSome(1) [3mlast_valid_block[0m[2m=[0mSome(0)
+[2m2026-10-09T00:34:48.634093Z[0m [32m INFO[0m Stopped at last valid block 0 due to invalid block 1 in file: chain_no_bal.rlp. Imported 0 blocks, 0 transactions
+[2m2026-10-09T00:34:48.634101Z[0m [32m INFO[0m Import complete. Total: 0/2 blocks, 0/66 transactions

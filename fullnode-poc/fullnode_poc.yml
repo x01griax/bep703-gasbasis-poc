@@ -1,0 +1,173 @@
+name: fullnode-poc
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: fullnode-poc
+  cancel-in-progress: true
+
+env:
+  BSC_COMMIT: 8cc60b246c8c99d46d51846765d35238112a1a5c
+  RETH_BSC_COMMIT: 95884fd520b1e4c59b7837c11f05311242360304
+  # Keep the reth-bsc build inside the runner's RAM/disk envelope:
+  CARGO_BUILD_JOBS: "2"
+  CARGO_PROFILE_DEV_OPT_LEVEL: "1"
+  CARGO_PROFILE_DEV_DEBUG: "0"
+  CARGO_INCREMENTAL: "0"
+  RUSTFLAGS: "-C strip=symbols"
+
+jobs:
+  fullnode-poc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout PoC repository
+        uses: actions/checkout@v4
+
+      - name: Maximize runner disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost || true
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          df -h /
+
+      - name: Install Go 1.25
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+          cache: false
+
+      - name: Install Rust (stable, minimal)
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Checkout bnb-chain/bsc at pinned commit
+        run: |
+          git init -q bsc
+          cd bsc
+          git remote add origin https://github.com/bnb-chain/bsc.git
+          git fetch --depth 1 origin "$BSC_COMMIT"
+          git checkout -q FETCH_HEAD
+          git log --oneline -1
+
+      - name: Install PoC generator into the bsc checkout
+        run: |
+          cp fullnode-poc/generate_block_rlp.go   bsc/pocgen_main.go
+          mkdir -p bsc/pocgen
+          mv bsc/pocgen_main.go bsc/pocgen/main.go
+          cp fullnode-poc/generate_chain_helper.go bsc/core/poc_fullnode_generate.go
+
+      - name: Generate the PoC chain (bsc's own primitives + real Parlia engine)
+        run: |
+          mkdir -p poc-out
+          cd bsc
+          for attempt in 1 2 3 4 5; do
+            if go mod download; then echo "go mod download OK (attempt $attempt)"; break; fi
+            echo "go mod download failed (attempt $attempt); retrying in 20s"; sleep 20
+          done
+          go run ./pocgen --out-dir ../poc-out 2>&1 | tee ../poc-out/pocgen.log
+
+      - name: Build geth (bsc) at the pinned commit
+        run: |
+          cd bsc
+          go build -o ../poc-out/geth ./cmd/geth
+          ls -lh ../poc-out/geth
+
+      - name: FULL-NODE IMPORT - bsc (Go) - no-BAL chain
+        run: |
+          cd poc-out
+          ./geth --datadir dd-nobal init genesis.json
+          set +e
+          ./geth --datadir dd-nobal import chain_no_bal.rlp 2>&1 | tee bsc_import_no_bal.log
+          set -e
+          echo "--- verdict assertions (bsc, no-BAL chain) ---"
+          grep -q "Inserted new block" bsc_import_no_bal.log || grep -q "imported" bsc_import_no_bal.log || true
+          grep -q "header has nil BlockAccessListHash after Amsterdam" bsc_import_no_bal.log
+
+      - name: FULL-NODE IMPORT - bsc (Go) - BAL-carrying chain
+        run: |
+          cd poc-out
+          ./geth --datadir dd-withbal init genesis.json
+          set +e
+          ./geth --datadir dd-withbal import chain_with_bal.rlp 2>&1 | tee bsc_import_with_bal.log
+          set -e
+          echo "--- verdict assertions (bsc, BAL chain) ---"
+          grep -q "payment lane inequality violated: gas used 1939200 payment 21000 quota 100000 limit 2000000" bsc_import_with_bal.log
+
+      - name: Cache cargo build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/cache
+            ~/.cargo/registry/src
+            reth-bsc/target
+          key: cargo-fullnode-poc-v2
+          restore-keys: cargo-fullnode-poc-
+
+      - name: Checkout bnb-chain/reth-bsc at pinned commit
+        run: |
+          git init -q reth-bsc
+          cd reth-bsc
+          git remote add origin https://github.com/bnb-chain/reth-bsc.git
+          git fetch --depth 1 origin "$RETH_BSC_COMMIT"
+          git checkout -q FETCH_HEAD
+          git log --oneline -1
+
+      - name: Install the import harness (added binary; no repo code modified)
+        run: |
+          mkdir -p reth-bsc/src/bin
+          cp fullnode-poc/import_harness.rs reth-bsc/src/bin/import_harness.rs
+
+      - name: Build reth-bsc + import harness (dev profile, 2 jobs, no debug symbols)
+        run: |
+          cd reth-bsc
+          cargo build --profile dev --bin reth-bsc --bin import_harness
+          cp target/debug/reth-bsc ../poc-out/reth-bsc
+          cp target/debug/import_harness ../poc-out/import-harness
+          ls -lh ../poc-out/reth-bsc ../poc-out/import-harness
+          df -h /
+
+      - name: RETH TOOLING NOTE - stock binary cannot execute BSC chains via import
+        if: always()
+        run: |
+          cd poc-out
+          set +e
+          ./reth-bsc import chain_no_bal.rlp --chain genesis.json --datadir rd-stock 2>&1 | tee reth_stock_import_no_bal.log
+          set -e
+          echo "--- documented gap (NOT a consensus verdict) ---"
+          grep -q "Failed to get parent header from global header reader" reth_stock_import_no_bal.log
+
+      - name: FULL-NODE IMPORT - reth-bsc (Rust) - no-BAL chain (expect ACCEPT)
+        run: |
+          cd poc-out
+          ./import-harness --chain genesis.json --datadir rd-nobal chain_no_bal.rlp 2>&1 | tee reth_import_no_bal.log
+          echo "--- verdict assertions (reth, no-BAL chain) ---"
+          grep -q "Import complete. Total: 2/2 blocks, 66/66 transactions" reth_import_no_bal.log
+
+      - name: FULL-NODE IMPORT - reth-bsc (Rust) - BAL-carrying chain (expect REJECT)
+        if: always()
+        run: |
+          cd poc-out
+          set +e
+          ./import-harness --chain genesis.json --datadir rd-withbal chain_with_bal.rlp 2>&1 | tee reth_import_with_bal.log
+          set -e
+          echo "--- verdict assertions (reth, BAL chain) ---"
+          grep -q "invalid BlockAccessListHash" reth_import_with_bal.log
+
+      - name: Upload verdict logs as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fullnode-verdict-logs
+          path: |
+            poc-out/bsc_import_no_bal.log
+            poc-out/bsc_import_with_bal.log
+            poc-out/reth_stock_import_no_bal.log
+            poc-out/reth_import_no_bal.log
+            poc-out/reth_import_with_bal.log
+            poc-out/pocgen.log
+            poc-out/manifest.json
+            poc-out/genesis.json
+          retention-days: 3

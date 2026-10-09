@@ -1,0 +1,18 @@
+{
+  "amsterdam_time": 20,
+  "block1_hash": "0x9e7558bb37a47ac3e2896b869ca523042424adef9bed17babcdbf14d543c204f",
+  "block1_txs": 7,
+  "block2_receipt_gas_used": 1834880,
+  "block2_txs": 59,
+  "chain_id": 714,
+  "chain_no_bal_block2_hash": "0x5e851d1845e395d703d3e92f4327489d9cbd97938e616bc6ea4ada4162b30304",
+  "chain_with_bal_block2_hash": "0x011612afeed436f1e22616e43cbf704275f2447365e1ee4c3eb597816b954392",
+  "expected_peak_gas_used": 1939200,
+  "gas_limit": 2000000,
+  "genesis_hash": "0x6b3282af7fd2ecffefdbe366a8a7193f89ed7c80fef4bb78f078bf34db29cc5c",
+  "jenner_time": 0,
+  "lane_quota": 100000,
+  "payment_gas": 21000,
+  "refund_delta": 104320,
+  "validator": "0x6c9356587a1C0e4C9c1292fB34a2C5E0faC210bD"
+}

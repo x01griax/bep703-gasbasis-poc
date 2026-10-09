@@ -1,0 +1,245 @@
+===============================================================================
+BNB-BEP703-GASBASIS-DIVERGENCE-001 - FULL-NODE POC LOGS (bsc / Go)
+Captured from GitHub Actions run 37862123741 (conclusion: success) on
+ubuntu-latest, 2026-10-09. Binaries built at the pinned commits:
+  bnb-chain/bsc        develop @ 8cc60b246c8c99d46d51846765d35238112a1a5c
+  bnb-chain/reth-bsc   develop @ 95884fd520b1e4c59b7837c11f05311242360304
+Verdict assertions asserted in-workflow (grep) and passing:
+  no-BAL chain : "header has nil BlockAccessListHash after Amsterdam"
+  BAL chain    : "payment lane inequality violated: gas used 1939200 payment 21000 quota 100000 limit 2000000"
+===============================================================================
+
+-------------------------------------------------------------------------------
+[1/2] geth init + geth import chain_no_bal.rlp   (reth-style Amsterdam-era chain)
+      EXPECTED: block 1 accepted (full Parlia), block 2 REJECTED at the Amsterdam
+      header check - the divergence bsc enforces and reth-bsc cannot see.
+-------------------------------------------------------------------------------
+INFO [10-09|00:02:17.720] Maximum peer count                       ETH=50 total=50
+INFO [10-09|00:02:17.722] Smartcard socket not found, disabling    err="stat /run/pcscd/pcscd.comm: no such file or directory"
+WARN [10-09|00:02:17.727] Sanitizing cache to Go's GC limits       provided=4096 updated=2646
+INFO [10-09|00:02:17.727] Sanitizing Go's GC trigger               percent=38
+INFO [10-09|00:02:17.729] Set global gas cap                       cap=50,000,000
+INFO [10-09|00:02:17.730] Initializing the KZG library             backend=gokzg
+INFO [10-09|00:02:20.148] Using pebble as the backing database
+INFO [10-09|00:02:20.148] Allocated cache and file handles         database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-nobal/geth/chaindata cache=1.03GiB handles=32768
+INFO [10-09|00:02:20.148] Allocated memory table size              database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-nobal/geth/chaindata "memory table"=88.17MiB
+INFO [10-09|00:02:20.154] Opened ancient database                  database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-nobal/geth/chaindata/ancient/chain readonly=false tail=0 frozen=0
+INFO [10-09|00:02:20.154] Opened Era store                         datadir=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-nobal/geth/chaindata/ancient/chain/era
+INFO [10-09|00:02:20.154] State scheme set to already existing disk db scheme=path
+INFO [10-09|00:02:20.154] Capped dirty cache size                  provided=661.00MiB adjusted=256.00MiB
+INFO [10-09|00:02:20.154] Clean cache size                         provided=396.00MiB adjusted=801.00MiB
+INFO [10-09|00:02:20.154] Allocated memory caches                  state_scheme=path trie_clean_cache=801.00MiB trie_dirty_cache=256.00MiB snapshot_cache=529.00MiB
+INFO [10-09|00:02:20.154] Parlia                                   chainConfig="{ChainID: 714, Engine: parlia, Homestead: 0 DAO: <nil> DAOSupport: false EIP150: 0 EIP155: 0 EIP158: 0 Byzantium: 0 Constantinople: 0 Petersburg: 0 Istanbul: 0, Muir Glacier: 0, Ramanujan: 0, Niels: 0, MirrorSync: 0, Bruno: 0, Berlin: 0, YOLO v3: <nil>, CatalystBlock: <nil>, London: 0, ArrowGlacier: <nil>, MergeFork:<nil>, Euler: 0, Gibbs: 0, Nano: 0, Moran: 0, Planck: 0,Luban: 0, Plato: 0, Hertz: 0, Hertzfix: 0, ShanghaiTime: 0, KeplerTime: 0, FeynmanTime: 0, FeynmanFixTime: 0, CancunTime: 0, HaberTime: 0, HaberFixTime: 0, BohrTime: 0, PascalTime: 0, PragueTime: 0, LorentzTime: 0, MaxwellTime: 0, FermiTime: 0, OsakaTime: 0, MendelTime: 0, PasteurTime: 0, JennerTime: 0, BPO1Time: <nil>, BPO2Time: <nil>}"
+INFO [10-09|00:02:20.165] Initialising Ethereum protocol           network=714 dbversion=<nil>
+INFO [10-09|00:02:20.165] Load database journal from disk
+INFO [10-09|00:02:20.165] Failed to load journal, discard it       err="journal not found"
+INFO [10-09|00:02:20.166] Opened ancient database                  database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-nobal/geth/chaindata/ancient/state readonly=false tail=0 frozen=1
+INFO [10-09|00:02:20.166] Initialized path database                triecache=801.00MiB statecache=529.00MiB buffer=256.00MiB state-history="last 600000 blocks" journal-dir=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-nobal/geth/triedb
+INFO [10-09|00:02:20.167] Initialised chain configuration          config="{ChainID: 714, Engine: parlia, Homestead: 0 DAO: <nil> DAOSupport: false EIP150: 0 EIP155: 0 EIP158: 0 Byzantium: 0 Constantinople: 0 Petersburg: 0 Istanbul: 0, Muir Glacier: 0, Ramanujan: 0, Niels: 0, MirrorSync: 0, Bruno: 0, Berlin: 0, YOLO v3: <nil>, CatalystBlock: <nil>, London: 0, ArrowGlacier: <nil>, MergeFork:<nil>, Euler: 0, Gibbs: 0, Nano: 0, Moran: 0, Planck: 0,Luban: 0, Plato: 0, Hertz: 0, Hertzfix: 0, ShanghaiTime: 0, KeplerTime: 0, FeynmanTime: 0, FeynmanFixTime: 0, CancunTime: 0, HaberTime: 0, HaberFixTime: 0, BohrTime: 0, PascalTime: 0, PragueTime: 0, LorentzTime: 0, MaxwellTime: 0, FermiTime: 0, OsakaTime: 0, MendelTime: 0, PasteurTime: 0, JennerTime: 0, BPO1Time: <nil>, BPO2Time: <nil>}"
+INFO [10-09|00:02:20.167] Stored checkpoint snapshot to disk       number=0 hash=6b3282..29cc5c
+INFO [10-09|00:02:20.167] Loaded most recent local block           number=0 hash=6b3282..29cc5c root=bc9368..f80bad td=1 age=57y7mo5d
+INFO [10-09|00:02:20.167] Loaded most recent local finalized block number=0 hash=6b3282..29cc5c root=bc9368..f80bad td=1 age=57y7mo5d
+INFO [10-09|00:02:20.167] Initialized transaction indexer          range="last 2350000 blocks"
+INFO [10-09|00:02:20.250] Enabled snap-sync                        head=0 hash=6b3282..29cc5c
+INFO [10-09|00:02:20.250] Create votePool successfully
+INFO [10-09|00:02:20.250] Gasprice oracle is ignoring threshold set threshold=4
+INFO [10-09|00:02:20.250] Importing blockchain                     file=chain_no_bal.rlp
+INFO [10-09|00:02:20.252] Loaded payment lane metadata             elapsed="102.102µs" ratio=500 listed=0
+ERROR[10-09|00:02:20.255] Import error                             err="invalid block 2: header has nil BlockAccessListHash after Amsterdam"
+INFO [10-09|00:02:20.255] Waiting background transaction indexer to exit
+INFO [10-09|00:02:20.255] Transaction indexing interrupted         blocks=0 txs=0 tail=2 elapsed="217.448µs"
+INFO [10-09|00:02:20.255] Persisting dirty state                   head=1 root=b8c789..6992b5 layers=1
+INFO [10-09|00:02:20.257] Persisted dirty state to file            path=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-nobal/geth/triedb/merkle.journal size=486.00B elapsed=2.385ms
+INFO [10-09|00:02:20.259] Blockchain stopped
+Import done in 8.933136ms.
+
+      |                             |       |       |   ingested   |     moved    |    written   |       |    amp
+level | tables  size val-bl vtables | score |   in  | tables  size | tables  size | tables  size |  read |   r   w
+------+-----------------------------+-------+-------+--------------+--------------+--------------+-------+---------
+    0 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    1 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    2 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    3 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    4 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    5 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    6 |     1   25KB     0B       0 |     - |    0B |     0     0B |     1   25KB |     0     0B |    0B |   1  0.0
+total |     1   25KB     0B       0 |     - | 2.9KB |     0     0B |     1   25KB |     0  2.9KB |    0B |   1  1.0
+-------------------------------------------------------------------------------------------------------------------
+WAL: 1 files (2.9KB)  in: 2.8KB  written: 2.9KB (3% overhead)
+Flushes: 0
+Compactions: 1  estimated debt: 0B  in progress: 0 (0B)
+             default: 0  delete: 0  elision: 0  move: 1  read: 0  rewrite: 0  multi-level: 0
+MemTables: 1 (256KB)  zombie: 1 (512KB)
+Zombie tables: 0 (0B)
+Backing tables: 0 (0B)
+Virtual tables: 0 (0B)
+Block cache: 5 entries (45KB)  hit rate: 96.8%
+Table cache: 1 entries (808B)  hit rate: 98.9%
+Secondary cache: 0 entries (0B)  hit rate: 0.0%
+Snapshots: 0  earliest seq num: 0
+Table iters: 0
+Filter utility: 100.0%
+Ingestions: 0  as flushable: 0 (0B in 0 tables)
+
+Object memory: 25.263 MB current, 24.257 MB peak
+System memory: 66.334 MB current, 66.334 MB peak
+Allocations:   0.532 million
+GC pause:      1.374024ms
+
+Compacting entire database...
+Compaction done in 4.339927ms.
+
+      |                             |       |       |   ingested   |     moved    |    written   |       |    amp
+level | tables  size val-bl vtables | score |   in  | tables  size | tables  size | tables  size |  read |   r   w
+------+-----------------------------+-------+-------+--------------+--------------+--------------+-------+---------
+    0 |     0     0B     0B       0 |  0.00 | 2.9KB |     0     0B |     0     0B |     1  2.7KB |    0B |   0  0.9
+    1 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    2 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    3 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    4 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    5 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    6 |     1   25KB     0B       0 |     - | 2.7KB |     0     0B |     1   25KB |     1   25KB |  27KB |   1  9.1
+total |     1   25KB     0B       0 |     - | 2.9KB |     0     0B |     1   25KB |     2   30KB |  27KB |   1 10.5
+-------------------------------------------------------------------------------------------------------------------
+WAL: 1 files (0B)  in: 2.8KB  written: 2.9KB (3% overhead)
+Flushes: 1
+Compactions: 2  estimated debt: 0B  in progress: 0 (0B)
+             default: 1  delete: 0  elision: 0  move: 1  read: 0  rewrite: 0  multi-level: 0
+MemTables: 1 (256KB)  zombie: 1 (256KB)
+Zombie tables: 0 (0B)
+Backing tables: 0 (0B)
+Virtual tables: 0 (0B)
+Block cache: 0 entries (0B)  hit rate: 95.0%
+Table cache: 0 entries (0B)  hit rate: 98.0%
+Secondary cache: 0 entries (0B)  hit rate: 0.0%
+Snapshots: 0  earliest seq num: 0
+Table iters: 0
+Filter utility: 100.0%
+Ingestions: 0  as flushable: 0 (0B in 0 tables)
+
+invalid block 2: header has nil BlockAccessListHash after Amsterdam
+
+-------------------------------------------------------------------------------
+[2/2] geth init + geth import chain_with_bal.rlp (block 2 carries the Amsterdam
+      trailing header fields bsc itself requires post-Amsterdam)
+      EXPECTED: block 1 accepted, block 2 executes and is REJECTED on the
+      payment-lane inequality at the EIP-7778 PEAK basis: the lane verdict.
+-------------------------------------------------------------------------------
+INFO [10-09|00:02:22.921] Maximum peer count                       ETH=50 total=50
+INFO [10-09|00:02:22.923] Smartcard socket not found, disabling    err="stat /run/pcscd/pcscd.comm: no such file or directory"
+WARN [10-09|00:02:22.928] Sanitizing cache to Go's GC limits       provided=4096 updated=2646
+INFO [10-09|00:02:22.928] Sanitizing Go's GC trigger               percent=38
+INFO [10-09|00:02:22.930] Set global gas cap                       cap=50,000,000
+INFO [10-09|00:02:22.930] Initializing the KZG library             backend=gokzg
+INFO [10-09|00:02:25.352] Using pebble as the backing database
+INFO [10-09|00:02:25.352] Allocated cache and file handles         database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-withbal/geth/chaindata cache=1.03GiB handles=32768
+INFO [10-09|00:02:25.352] Allocated memory table size              database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-withbal/geth/chaindata "memory table"=88.17MiB
+INFO [10-09|00:02:25.357] Opened ancient database                  database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-withbal/geth/chaindata/ancient/chain readonly=false tail=0 frozen=0
+INFO [10-09|00:02:25.357] Opened Era store                         datadir=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-withbal/geth/chaindata/ancient/chain/era
+INFO [10-09|00:02:25.357] State scheme set to already existing disk db scheme=path
+INFO [10-09|00:02:25.357] Capped dirty cache size                  provided=661.00MiB adjusted=256.00MiB
+INFO [10-09|00:02:25.357] Clean cache size                         provided=396.00MiB adjusted=801.00MiB
+INFO [10-09|00:02:25.357] Allocated memory caches                  state_scheme=path trie_clean_cache=801.00MiB trie_dirty_cache=256.00MiB snapshot_cache=529.00MiB
+INFO [10-09|00:02:25.358] Parlia                                   chainConfig="{ChainID: 714, Engine: parlia, Homestead: 0 DAO: <nil> DAOSupport: false EIP150: 0 EIP155: 0 EIP158: 0 Byzantium: 0 Constantinople: 0 Petersburg: 0 Istanbul: 0, Muir Glacier: 0, Ramanujan: 0, Niels: 0, MirrorSync: 0, Bruno: 0, Berlin: 0, YOLO v3: <nil>, CatalystBlock: <nil>, London: 0, ArrowGlacier: <nil>, MergeFork:<nil>, Euler: 0, Gibbs: 0, Nano: 0, Moran: 0, Planck: 0,Luban: 0, Plato: 0, Hertz: 0, Hertzfix: 0, ShanghaiTime: 0, KeplerTime: 0, FeynmanTime: 0, FeynmanFixTime: 0, CancunTime: 0, HaberTime: 0, HaberFixTime: 0, BohrTime: 0, PascalTime: 0, PragueTime: 0, LorentzTime: 0, MaxwellTime: 0, FermiTime: 0, OsakaTime: 0, MendelTime: 0, PasteurTime: 0, JennerTime: 0, BPO1Time: <nil>, BPO2Time: <nil>}"
+INFO [10-09|00:02:25.368] Initialising Ethereum protocol           network=714 dbversion=<nil>
+INFO [10-09|00:02:25.369] Load database journal from disk
+INFO [10-09|00:02:25.369] Failed to load journal, discard it       err="journal not found"
+INFO [10-09|00:02:25.370] Opened ancient database                  database=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-withbal/geth/chaindata/ancient/state readonly=false tail=0 frozen=1
+INFO [10-09|00:02:25.370] Initialized path database                triecache=801.00MiB statecache=529.00MiB buffer=256.00MiB state-history="last 600000 blocks" journal-dir=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-withbal/geth/triedb
+INFO [10-09|00:02:25.371] Initialised chain configuration          config="{ChainID: 714, Engine: parlia, Homestead: 0 DAO: <nil> DAOSupport: false EIP150: 0 EIP155: 0 EIP158: 0 Byzantium: 0 Constantinople: 0 Petersburg: 0 Istanbul: 0, Muir Glacier: 0, Ramanujan: 0, Niels: 0, MirrorSync: 0, Bruno: 0, Berlin: 0, YOLO v3: <nil>, CatalystBlock: <nil>, London: 0, ArrowGlacier: <nil>, MergeFork:<nil>, Euler: 0, Gibbs: 0, Nano: 0, Moran: 0, Planck: 0,Luban: 0, Plato: 0, Hertz: 0, Hertzfix: 0, ShanghaiTime: 0, KeplerTime: 0, FeynmanTime: 0, FeynmanFixTime: 0, CancunTime: 0, HaberTime: 0, HaberFixTime: 0, BohrTime: 0, PascalTime: 0, PragueTime: 0, LorentzTime: 0, MaxwellTime: 0, FermiTime: 0, OsakaTime: 0, MendelTime: 0, PasteurTime: 0, JennerTime: 0, BPO1Time: <nil>, BPO2Time: <nil>}"
+INFO [10-09|00:02:25.371] Stored checkpoint snapshot to disk       number=0 hash=6b3282..29cc5c
+INFO [10-09|00:02:25.371] Loaded most recent local block           number=0 hash=6b3282..29cc5c root=bc9368..f80bad td=1 age=57y7mo5d
+INFO [10-09|00:02:25.371] Loaded most recent local finalized block number=0 hash=6b3282..29cc5c root=bc9368..f80bad td=1 age=57y7mo5d
+INFO [10-09|00:02:25.371] Initialized transaction indexer          range="last 2350000 blocks"
+INFO [10-09|00:02:25.459] Enabled snap-sync                        head=0 hash=6b3282..29cc5c
+INFO [10-09|00:02:25.459] Create votePool successfully
+INFO [10-09|00:02:25.459] Gasprice oracle is ignoring threshold set threshold=4
+INFO [10-09|00:02:25.459] Importing blockchain                     file=chain_with_bal.rlp
+INFO [10-09|00:02:25.463] Loaded payment lane metadata             elapsed="153.238µs" ratio=500 listed=0
+WARN [10-09|00:02:25.473] intentional delay mining detected        validator=0x6c9356587a1C0e4C9c1292fB34a2C5E0faC210bD number=2 hash=011612..954392
+WARN [10-09|00:02:25.473] Failed to load old bad blocks            error="pebble: not found"
+ERROR[10-09|00:02:25.473] 
+########## BAD BLOCK #########
+Block: 2 (0x011612afeed436f1e22616e43cbf704275f2447365e1ee4c3eb597816b954392)
+Miner: 0x6c9356587a1C0e4C9c1292fB34a2C5E0faC210bD
+IsBidBlock: false
+Error: payment lane inequality violated: gas used 1939200 payment 21000 quota 100000 limit 2000000
+Platform: geth v0.0.0-20261008080918-8cc60b246c8c+dirty go1.25.14 amd64 linux
+VCS: 8cc60b24-20261008 (dirty)
+Chain config: &params.ChainConfig{ChainID:714, HomesteadBlock:0, DAOForkBlock:<nil>, DAOForkSupport:false, EIP150Block:0, EIP155Block:0, EIP158Block:0, ByzantiumBlock:0, ConstantinopleBlock:0, PetersburgBlock:0, IstanbulBlock:0, MuirGlacierBlock:0, BerlinBlock:0, YoloV3Block:<nil>, CatalystBlock:<nil>, LondonBlock:0, ArrowGlacierBlock:<nil>, GrayGlacierBlock:<nil>, MergeNetsplitBlock:<nil>, ShanghaiTime:(*uint64)(0xc0004c0360), KeplerTime:(*uint64)(0xc0004c0368), FeynmanTime:(*uint64)(0xc0004c0370), FeynmanFixTime:(*uint64)(0xc0004c0378), CancunTime:(*uint64)(0xc0004c0380), HaberTime:(*uint64)(0xc0004c0388), HaberFixTime:(*uint64)(0xc0004c0390), BohrTime:(*uint64)(0xc0004c0398), PascalTime:(*uint64)(0xc0004c03a0), PragueTime:(*uint64)(0xc0004c03a8), LorentzTime:(*uint64)(0xc0004c03b0), MaxwellTime:(*uint64)(0xc0004c03b8), FermiTime:(*uint64)(0xc0004c03c0), OsakaTime:(*uint64)(0xc0004c03c8), MendelTime:(*uint64)(0xc0004c03d0), PasteurTime:(*uint64)(0xc0004c03d8), JennerTime:(*uint64)(0xc0004c03f0), BPO1Time:(*uint64)(nil), BPO2Time:(*uint64)(nil), BPO3Time:(*uint64)(nil), BPO4Time:(*uint64)(nil), BPO5Time:(*uint64)(nil), AmsterdamTime:(*uint64)(0xc0004c03f8), UBTTime:(*uint64)(nil), TerminalTotalDifficulty:<nil>, TerminalTotalDifficultyPassed:false, DepositContractAddress:0x0000000000000000000000000000000000000000, EnableUBTAtGenesis:false, RamanujanBlock:0, NielsBlock:0, MirrorSyncBlock:0, BrunoBlock:0, EulerBlock:0, GibbsBlock:0, NanoBlock:0, MoranBlock:0, PlanckBlock:0, LubanBlock:0, PlatoBlock:0, HertzBlock:0, HertzfixBlock:0, Ethash:(*params.EthashConfig)(nil), Clique:(*params.CliqueConfig)(nil), Parlia:(*params.ParliaConfig)(0x5949fe0), BlobScheduleConfig:(*params.BlobScheduleConfig)(0xc0001693b0)}
+Receipts: 
+##############################
+
+ERROR[10-09|00:02:25.475] Import error                             err="invalid block 2: payment lane inequality violated: gas used 1939200 payment 21000 quota 100000 limit 2000000"
+INFO [10-09|00:02:25.475] Waiting background transaction indexer to exit
+INFO [10-09|00:02:25.475] Transaction indexing interrupted         blocks=2 txs=7 tail=0 elapsed="168.497µs"
+INFO [10-09|00:02:25.476] Persisting dirty state                   head=1 root=b8c789..6992b5 layers=1
+INFO [10-09|00:02:25.478] Persisted dirty state to file            path=/home/runner/work/bep703-fullnode-poc/bep703-fullnode-poc/poc-out/dd-withbal/geth/triedb/merkle.journal size=486.00B elapsed=2.123ms
+INFO [10-09|00:02:25.479] Blockchain stopped
+Import done in 20.053701ms.
+
+      |                             |       |       |   ingested   |     moved    |    written   |       |    amp
+level | tables  size val-bl vtables | score |   in  | tables  size | tables  size | tables  size |  read |   r   w
+------+-----------------------------+-------+-------+--------------+--------------+--------------+-------+---------
+    0 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    1 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    2 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    3 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    4 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    5 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    6 |     1   25KB     0B       0 |     - |    0B |     0     0B |     1   25KB |     0     0B |    0B |   1  0.0
+total |     1   25KB     0B       0 |     - | 9.9KB |     0     0B |     1   25KB |     0  9.9KB |    0B |   1  1.0
+-------------------------------------------------------------------------------------------------------------------
+WAL: 1 files (9.9KB)  in: 9.8KB  written: 9.9KB (1% overhead)
+Flushes: 0
+Compactions: 1  estimated debt: 0B  in progress: 0 (0B)
+             default: 0  delete: 0  elision: 0  move: 1  read: 0  rewrite: 0  multi-level: 0
+MemTables: 1 (256KB)  zombie: 1 (512KB)
+Zombie tables: 0 (0B)
+Backing tables: 0 (0B)
+Virtual tables: 0 (0B)
+Block cache: 5 entries (45KB)  hit rate: 99.1%
+Table cache: 1 entries (808B)  hit rate: 99.7%
+Secondary cache: 0 entries (0B)  hit rate: 0.0%
+Snapshots: 0  earliest seq num: 0
+Table iters: 0
+Filter utility: 100.0%
+Ingestions: 0  as flushable: 0 (0B in 0 tables)
+
+Object memory: 23.459 MB current, 25.843 MB peak
+System memory: 54.334 MB current, 54.334 MB peak
+Allocations:   0.548 million
+GC pause:      1.47773ms
+
+Compacting entire database...
+Compaction done in 4.756404ms.
+
+      |                             |       |       |   ingested   |     moved    |    written   |       |    amp
+level | tables  size val-bl vtables | score |   in  | tables  size | tables  size | tables  size |  read |   r   w
+------+-----------------------------+-------+-------+--------------+--------------+--------------+-------+---------
+    0 |     0     0B     0B       0 |  0.00 | 9.9KB |     0     0B |     0     0B |     1  7.4KB |    0B |   0  0.7
+    1 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    2 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    3 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    4 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    5 |     0     0B     0B       0 |  0.00 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0  0.0
+    6 |     1   30KB     0B       0 |     - | 7.4KB |     0     0B |     1   25KB |     1   30KB |  32KB |   1  4.0
+total |     1   30KB     0B       0 |     - | 9.9KB |     0     0B |     1   25KB |     2   47KB |  32KB |   1  4.7
+-------------------------------------------------------------------------------------------------------------------
+WAL: 1 files (0B)  in: 9.8KB  written: 9.9KB (1% overhead)
+Flushes: 1
+Compactions: 2  estimated debt: 0B  in progress: 0 (0B)
+             default: 1  delete: 0  elision: 0  move: 1  read: 0  rewrite: 0  multi-level: 0
+MemTables: 1 (256KB)  zombie: 1 (256KB)
+Zombie tables: 0 (0B)
+Backing tables: 0 (0B)
+Virtual tables: 0 (0B)
+Block cache: 0 entries (0B)  hit rate: 98.6%
+Table cache: 0 entries (0B)  hit rate: 99.4%
+Secondary cache: 0 entries (0B)  hit rate: 0.0%
+Snapshots: 0  earliest seq num: 0
+Table iters: 0
+Filter utility: 100.0%
+Ingestions: 0  as flushable: 0 (0B in 0 tables)
+
+invalid block 2: payment lane inequality violated: gas used 1939200 payment 21000 quota 100000 limit 2000000

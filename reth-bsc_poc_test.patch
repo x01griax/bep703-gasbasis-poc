@@ -1,0 +1,41 @@
+diff --git a/src/consensus/payment_lane/rules.rs b/src/consensus/payment_lane/rules.rs
+index 07f7b56..ccc8207 100644
+--- a/src/consensus/payment_lane/rules.rs
++++ b/src/consensus/payment_lane/rules.rs
+@@ -229,4 +229,36 @@ mod tests {
+             Err(LaneError::StateUnavailable(_))
+         ));
+     }
++
++    /// PROOF OF CONCEPT — BEP-703 payment-lane gas-basis divergence (bsc vs
++    /// reth-bsc), mirroring bsc's `core/payment_lane_gas_basis_poc_test.go`.
++    ///
++    /// One block, byte-identical inputs: gas_limit 2,000,000, lane quota
++    /// 100,000 (default ratio 500), payment gas 21,000, receipt-basis total
++    /// gas 1,834,880, and EIP-7778 refund-exclusive (peak) total 1,939,200.
++    /// The 104,320-gas delta is exactly the EIP-3529 refunds earned by the
++    /// block's two SSTORE-clearing transactions.
++    ///
++    /// bsc (Amsterdam active) charges the block gas pool at the pre-refund
++    /// peak — `state_transition.go`, IsAmsterdam branch — and verifies the
++    /// lane against the peak total: REJECT (`paymentlane.ErrViolated`).
++    /// reth-bsc has no Amsterdam fork (its hardfork list ends at Jenner,
++    /// `src/hardforks/bsc.rs`), so its executor feeds `tx_gas_used` receipts
++    /// to `verify_payment_lane` (`src/node/evm/executor.rs`) forever: ACCEPT.
++    /// Divergent verdicts on identical bytes: a cross-client consensus split.
++    #[test]
++    fn poc_gas_basis_divergence_bsc_vs_reth() {
++        // bsc at Amsterdam: the pool is charged at the pre-refund PEAK
++        // (1,939,200) — verdict must be a lane violation.
++        let bsc_amsterdam = budget(100_000, 21_000).verify(2_000_000, 1_939_200);
++        assert!(bsc_amsterdam.is_err(), "bsc/Amsterdam peak basis must reject: {bsc_amsterdam:?}");
++
++        // reth-bsc semantics: the executor's receipt-basis total (1,834,880)
++        // — verdict on the same block must be acceptance.
++        let reth_receipt = budget(100_000, 21_000).verify(2_000_000, 1_834_880);
++        assert!(reth_receipt.is_ok(), "reth-bsc receipt basis must accept: {reth_receipt:?}");
++
++        // The two verdicts differ by exactly the refund delta the block earned.
++        assert_eq!(1_939_200 - 1_834_880, 104_320, "peak-receipt delta must be the tx refunds");
++    }
+ }
